@@ -13,7 +13,7 @@ void standart_paths(QString *Standart_path)
     QStandardPaths::StandardLocation type = static_cast<QStandardPaths::StandardLocation>(currentUserData.toInt());
     QStringList paths = QStandardPaths::standardLocations(type);
     QString s = "//",
-            Diary = "Diary_v3";
+            Diary = "Alternative Diary";
     QString str = paths.join("");
     str = paths.join(",");
 

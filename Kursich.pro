@@ -38,7 +38,8 @@ HEADERS += \
     createnote.h \
     save_load.h \
     save_load.h \
-    standart_path.h
+    standart_path.h \
+    alternative_save_load.h
 
 FORMS += \
         diary.ui \

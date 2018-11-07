@@ -1,10 +1,11 @@
 #include "diary.h"
 #include "ui_diary.h"
 #include "note.h"
-#include "save_load.h"
+//#include "save_load.h"
 #include <QStringList>
 #include <QVector>
 #include <QDebug>
+#include <alternative_save_load.h>
 
 Diary::Diary(QWidget *parent) :
     QMainWindow(parent),
@@ -17,134 +18,48 @@ Diary::Diary(QWidget *parent) :
     load_config(&config);
     setWindowTitle(config); // связать зарузку с функцией write, чтобы не ломались чекстэйты и календарь
                             //(добавить закрашивание календаря во врайте
+    QString Path;
+    standart_path(&Path);
+    Path = Path + "//" + config + "//data.tfd";
+    QStringList N0te,Date,Time,Name;
+    load_file(Path,&Date,&N0te,&Time,&Name);
 
-    QString NameDiary = config;
+    int size = Date.size();
+    qDebug() << "size" << size;
 
-    int tryy = 0;
-
-    //NEED//!!!//NEED//NEED//!!!//NEED//NEED//!!!//NEED//NEED//!!!//NEED//NEED//!!!//NEED//NEED//!!!//NEED//NEED//!!!//NEED
-    QString dates;
-    QStringList Folders;
-    check_dirs(NameDiary,&dates,&Folders);
-
-    QString Standart_path;
-    standart_path(&Standart_path);
-
-    NameDiary = NameDiary + "//";
-
-
-    QString Number_Note,folders,folderss;
-    int size;
-    QStringList Notes;
-
-    size = Folders.size();
-    qDebug() << "-------------------------------|    DATES   |-------------------------------";
     for(int n = 0; n < size; n++)
     {
-        uint a = n;
+        Note n0;
+        notes.push_back(n0);
 
-        folders = Folders[n];
-        QString fdate = folders;
-        qDebug() << "DATE -----------------------------------------" << folders;
-
-        //std::string F0lders = folders.toStdString();
-
-        //QDate::fromString(date,"yyyy.MM.dd");
+        notes[n].note = N0te[n].toStdString();
+        qDebug() << QString::fromStdString(notes[n].note);
+        qDebug() << "NOTE" << n << "-----" << N0te[n];
+        qDebug() << "NOTE-------------------------------------------------------";
 
 
+        notes[n].name = Name[n].toStdString();
+        qDebug() << QString::fromStdString(notes[n].name);
+        qDebug() << "NAME" << n << "-----" << Name[n];
+        qDebug() << "NAME-------------------------------------------------------";
 
 
-
-        qDebug() << "------------------------------------------------ Folders" << folders;
-
-        folders = NameDiary + folders;
-        folderss = folders;
-
-        check_dirs(folders, &Number_Note, &Notes);
-
-        qDebug() << "-------------------------------|    NOTES   |-------------------------------";
-        int size_notes = Notes.size();
+        notes[n].time = QTime::fromString(Time[n], "hh:mm");
+        qDebug() << notes[n].time;
+        qDebug() << "TIME" << n << "-----" << Time[n];
+        qDebug() << "TIME-------------------------------------------------------";
 
 
-        for(uint nn = 0; nn < size_notes; nn++)
-        {
-            uint i = nn;
-            folders = folderss;
-
-            QString n0tes;
-            n0tes = Notes[nn];
-
-            folders = folders + "//" + n0tes;
-            QString read_notes,read_names,read_times;
-
-            read(folders,&read_notes,&read_names,&read_times);
-
-
-            qDebug() << "text of note" << read_notes;
-            qDebug() << "text of name" << read_names;
-            qDebug() << "text of names" << read_times;
-            qDebug() << "----------------------------------ERROR 1----------------------------------";
-
-            std::string N0tes = read_notes.toStdString();
-            qDebug() << QString::fromStdString(N0tes);
-            qDebug() << "----------------------------------ERROR 2----------------------------------";
-            qDebug() << read_notes;
-            std::string Names = read_names.toStdString();
-
-            //std::string Times = read_times.toStdString();
-
-            qDebug() << "----------------------------------ERROR 3----------------------------------";
-            qDebug() << read_names;
-
-
-            //где-то тут ошибка{
-
-            Note n0;
-            notes.push_back(n0);
-            qDebug() << "------------------ COUN>T OF NOTES" << ++tryy << "--------";
-
-            notes[i].note = N0tes;
-            qDebug() << "----------------------------------ERROR 4----------------------------------";
-            notes[i].name = Names;
-
-            qDebug() << "----------------------------------ERROR 5----------------------------------";
-
-            QString Times = read_times;
-            qDebug() << Times;
-            notes[i].time = QTime::fromString(Times, "hh:mm"); // Qt::DateFormat format = Qt::TextDate
-            qDebug() << notes[i].time;
-
-            qDebug() << "----------------------------------ERROR 6----------------------------------";
-            notes[i].id = i;
-            qDebug() << "----------------------------------ERROR 7----------------------------------";
-            notes[i].date = QDate::fromString(fdate, "dd.MM.yyyy");
-
-            //                    }
-        }
-        qDebug() << "-------------------------------|    NOTES   |-------------------------------";
+        notes[n].date = QDate::fromString(Date[n], "dd.MM.yyyy");
+        qDebug() << notes[n].date;
+        qDebug() << "DATE" << n << "-----" << Date[n];
+        qDebug() << "DATE-------------------------------------------------------";
 
     }
-
-    qDebug() << "-------------------------------|    DATES   |-------------------------------";
-
-    //NEED//!!!//NEED//NEED//!!!//NEED//NEED//!!!//NEED//NEED//!!!//NEED//NEED//!!!//NEED//NEED//!!!//NEED//NEED//!!!//NEED
-
-    qDebug() << "-------------------------------| CHECK  ALL |-------------------------------";
 
     ui->hideCompleted->setCheckState(Qt::Checked);
     ui->hideCompleted->setCheckState(Qt::Unchecked);
     write();
-    QString standartPath;
-
-    standart_path(&standartPath);
-
-    standartPath = standartPath + "//" + config;
-
-    qDebug() << standartPath;
-
-    DeletingF(PATH);
-
-
 
 }
 
@@ -289,9 +204,20 @@ void Diary::on_saveButton_clicked() // Сохранения заметки - т�
     size_of_note = notes.size();
     qDebug() << size_of_note << "<--------- size of note";
     load_config(&config);
-    uint C0unter = 0;
+    int number = 0;
 
-        qDebug() << "------------------------ 4 CRASH ------------------------";
+    QList<QString>note_list;
+    QList<QString>name_list;
+    QList<QString>time_list;
+    QList<QString>date_list;
+
+    /*
+    QStringList note_list,name_list,time_list,date_list;
+    note_list.append(size_of_note);
+    name_list.append(size_of_note);
+    time_list.append(size_of_note);
+    date_list.append(size_of_note);
+   */
 
         for(uint Counter = 0; Counter < size_of_note; Counter++)
         {
@@ -299,18 +225,24 @@ void Diary::on_saveButton_clicked() // Сохранения заметки - т�
             note = QString::fromStdString(notes[Counter].note); //сама  заметка
             date = notes[Counter].date.toString("dd.MM.yyyy");  //дата  заметки
             time = notes[Counter].time.toString("hh:mm");       //время заметки                     //номер заметки
-            qDebug() << name;
-            qDebug() << note;
-            qDebug() << date;
-            qDebug() << time;
-            qDebug() << config;
 
-            QString number = QString::number(C0unter++);
+            qDebug() << "sample text";
 
-            qDebug() << number;
+            name_list.append(name);
+            //name_list[number] = name;
+            qDebug() << "NAME";
+            note_list.append(note);
+            qDebug() << "NOTE";
+            date_list.append(date);
+            qDebug() << "DATE";
+            time_list.append(time);
+            qDebug() << "TIME";
 
-            save_file(config,number,date,note,time,name);
+            number++;
+
         }
+
+        save_file(config,date_list,note_list,time_list,name_list);
 
 
     

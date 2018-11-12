@@ -63,7 +63,7 @@ Diary::Diary(QWidget *parent) :
 
     ui->hideCompleted->setCheckState(Qt::Checked);
     ui->hideCompleted->setCheckState(Qt::Unchecked);
-    write();
+    //write();
 
 }
 
@@ -74,45 +74,19 @@ Diary::~Diary()
 
 //ФУНКЦИИ ТУТ--------------------------------------------------------------------------------------------------------------
 void Diary::setData(int i) {
-
-
-
     name = QString::fromStdString(notes[i].name);//имя заметки
-
     note = QString::fromStdString(notes[i].note);//сама заметка
-
     date = notes[i].date.toString("dd.MM.yyyy"); //дата заметки
-
     time = notes[i].time.toString("hh:mm");      //время заметки
-
     id   = notes[i].id;                          //номер заметки
-
 }
 
 void Diary::getData(int i) {
-
-
-
     notes[i].name = name.toStdString();
-
-//load_conf(name)
-//--------------------------------------
     notes[i].note = note.toStdString();
-
-//on_readall
-
     notes[i].date.fromString(date, "dd.MM.yyyy");
-
-//date from on_readall
-//-------------------------------------------
     notes[i].time.fromString(time, "hh:mm");
-
-
-
     notes[i].id = id.toInt();
-
-
-
 }
 //----------------------------------------------------------------------------------------------------------------------------------------------------------
 bool Diary::sorting (Note one, Note two)
@@ -544,6 +518,5 @@ void Diary::on_clearTasksButton_clicked()       // Удаление всех з�
         notes.resize(0);
         ui->taskList->clear();
         ui->taskText->clear();
-
     }
 }

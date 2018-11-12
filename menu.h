@@ -3,11 +3,13 @@
 
 #include "diary.h"
 #include <QMainWindow>
+#include "make_new.h"
 
 
 class Diary;
 namespace Ui {
 class Menu;
+class make_new;
 }
 
 class Menu : public QMainWindow
@@ -34,7 +36,7 @@ private slots:
 private:
     Ui::Menu *ui;
     Diary *d;
-
+    Ui::make_new *make;
 };
 
 #endif // MENU_H

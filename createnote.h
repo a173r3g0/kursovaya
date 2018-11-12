@@ -4,6 +4,7 @@
 #include "diary.h"
 #include <QMainWindow>
 #include "note.h"
+#include "make_new.h"
 
 class Diary;
 

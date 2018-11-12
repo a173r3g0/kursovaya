@@ -29,19 +29,20 @@ SOURCES += \
         diary.cpp \
     note.cpp \
     menu.cpp \
-    createnote.cpp
+    createnote.cpp \
+    make_new.cpp
 
 HEADERS += \
         diary.h \
     note.h \
     menu.h \
     createnote.h \
-    save_load.h \
-    save_load.h \
     standart_path.h \
-    alternative_save_load.h
+    alternative_save_load.h \
+    make_new.h
 
 FORMS += \
         diary.ui \
     menu.ui \
-    createnote.ui
+    createnote.ui \
+    make_new.ui

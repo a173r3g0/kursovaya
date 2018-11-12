@@ -101,5 +101,7 @@ void Menu::on_importButton_clicked()
 
 void Menu::on_createButton_clicked()
 {
-
+    make_new *make = new make_new;
+    make->show();
+    close();
 }

@@ -5,6 +5,8 @@ CreateNote::CreateNote(Diary *d, QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::CreateNote)
 {
+    //setWindowTitle("Create Note");
+
     ui->setupUi(this);
     this->d = d;
 

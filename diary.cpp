@@ -14,15 +14,18 @@ Diary::Diary(QWidget *parent) :
 
     ui->setupUi(this);
 
+    Save_load file;
+
     QString config;
-    load_config(&config);
+    file.load_config(&config);
     setWindowTitle(config); // связать зарузку с функцией write, чтобы не ломались чекстэйты и календарь
                             //(добавить закрашивание календаря во врайте
     QString Path;
-    standart_path(&Path);
+    file.standart_path(&Path);
     Path = Path + "//" + config + "//data.tfd";
     QStringList N0te,Date,Time,Name;
-    load_file(Path,&Date,&N0te,&Time,&Name);
+    QList<int>Check;
+    file.load_file(Path,&Date,&N0te,&Time,&Name,&Check);
 
     int size = Date.size();
     qDebug() << "size" << size;
@@ -55,6 +58,7 @@ Diary::Diary(QWidget *parent) :
         qDebug() << "DATE" << n << "-----" << Date[n];
         qDebug() << "DATE-------------------------------------------------------";
 
+        notes[n].completeFlag = Check[n];
     }
 
     ui->hideCompleted->setCheckState(Qt::Checked);
@@ -133,6 +137,9 @@ void Diary::write() { // Запись в лист всех задач
         else {
             item->setCheckState(Qt::Unchecked);
         }
+        if (i == 0) calendar_color(notes[i].date);
+        if ((i > 0) && (notes[i].date!= notes[i-1].date))
+            calendar_color(notes[i].date);
        // тцт должны закрашиваться ячейки, проверка дат, чтобы избежать повторного закрашивания
     }
 }
@@ -199,17 +206,18 @@ void Diary :: calendar_color(QDate date) { // календарь будет за
 
 void Diary::on_saveButton_clicked() // Сохранения заметки - теперь это не тут должно быть
 {
+    Save_load file;
     uint size_of_note;
     QString config;
     size_of_note = notes.size();
     qDebug() << size_of_note << "<--------- size of note";
-    load_config(&config);
-    int number = 0;
+    file.load_config(&config);
 
     QList<QString>note_list;
     QList<QString>name_list;
     QList<QString>time_list;
     QList<QString>date_list;
+    QList<bool>checked;
 
     /*
     QStringList note_list,name_list,time_list,date_list;
@@ -221,11 +229,12 @@ void Diary::on_saveButton_clicked() // Сохранения заметки - т�
 
         for(uint Counter = 0; Counter < size_of_note; Counter++)
         {
+            checked.append(notes[Counter].completeFlag);
             name = QString::fromStdString(notes[Counter].name); //имя   заметки
             note = QString::fromStdString(notes[Counter].note); //сама  заметка
             date = notes[Counter].date.toString("dd.MM.yyyy");  //дата  заметки
             time = notes[Counter].time.toString("hh:mm");       //время заметки                     //номер заметки
-
+            //checked[Counter].append(notes[Counter].completeFlag);//convert bool to something
             qDebug() << "sample text";
 
             name_list.append(name);
@@ -237,12 +246,8 @@ void Diary::on_saveButton_clicked() // Сохранения заметки - т�
             qDebug() << "DATE";
             time_list.append(time);
             qDebug() << "TIME";
-
-            number++;
-
         }
-
-        save_file(config,date_list,note_list,time_list,name_list);
+        file.save_file(config,date_list,note_list,time_list,name_list,checked);
 
 
     

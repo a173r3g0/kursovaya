@@ -81,7 +81,7 @@ void load_file(QString Path, QStringList *Date, QStringList *Note, QStringList *
     int size;
     size = stringList.size();
         qDebug() << size;
-    size = size/4;
+    size = size/5;
         qDebug() << size;
     int a = 0,
         b = 1,

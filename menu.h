@@ -15,7 +15,7 @@ class make_new;
 class Menu : public QMainWindow
 {
     Q_OBJECT
-
+friend class Diary;
 public:
     explicit Menu(Diary *d, QWidget *parent = 0);
     Menu (QWidget *parent = 0);

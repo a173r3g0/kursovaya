@@ -1,25 +1,25 @@
 #include "diary.h"
 #include "ui_diary.h"
 #include "note.h"
-//#include "save_load.h"
 #include <QStringList>
 #include <QVector>
 #include <QDebug>
 #include <alternative_save_load.h>
 
-Diary::Diary(QWidget *parent) :
+Diary::Diary(Menu* menu, QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::Diary)
 {
 
     ui->setupUi(this);
-
+    this->menu = menu;
+    menu->d = this;
     Save_load file;
 
     QString config;
     file.load_config(&config);
-    setWindowTitle(config); // связать зарузку с функцией write, чтобы не ломались чекстэйты и календарь
-                            //(добавить закрашивание календаря во врайте
+    setWindowTitle(config);
+
     QString Path;
     file.standart_path(&Path);
     Path = Path + "//" + config + "//data.tfd";
@@ -34,35 +34,21 @@ Diary::Diary(QWidget *parent) :
     {
         Note n0;
         notes.push_back(n0);
-
         notes[n].note = N0te[n].toStdString();
-        qDebug() << QString::fromStdString(notes[n].note);
-        qDebug() << "NOTE" << n << "-----" << N0te[n];
-        qDebug() << "NOTE-------------------------------------------------------";
-
-
         notes[n].name = Name[n].toStdString();
-        qDebug() << QString::fromStdString(notes[n].name);
-        qDebug() << "NAME" << n << "-----" << Name[n];
-        qDebug() << "NAME-------------------------------------------------------";
-
-
         notes[n].time = QTime::fromString(Time[n], "hh:mm");
-        qDebug() << notes[n].time;
-        qDebug() << "TIME" << n << "-----" << Time[n];
-        qDebug() << "TIME-------------------------------------------------------";
-
-
         notes[n].date = QDate::fromString(Date[n], "dd.MM.yyyy");
-        qDebug() << notes[n].date;
-        qDebug() << "DATE" << n << "-----" << Date[n];
-        qDebug() << "DATE-------------------------------------------------------";
-
         notes[n].completeFlag = Check[n];
     }
 
     ui->hideCompleted->setCheckState(Qt::Checked);
     ui->hideCompleted->setCheckState(Qt::Unchecked);
+    if (!notes.empty()) {
+        calendar_color(notes[0].date);
+        for (uint i = 1; i < notes.size(); i++ )
+                       if ( (notes[i].date!= notes[i-1].date))
+                calendar_color(notes[i].date);
+    }
     //write();
 
 }
@@ -111,10 +97,6 @@ void Diary::write() { // Запись в лист всех задач
         else {
             item->setCheckState(Qt::Unchecked);
         }
-        if (i == 0) calendar_color(notes[i].date);
-        if ((i > 0) && (notes[i].date!= notes[i-1].date))
-            calendar_color(notes[i].date);
-       // тцт должны закрашиваться ячейки, проверка дат, чтобы избежать повторного закрашивания
     }
 }
 
@@ -193,22 +175,13 @@ void Diary::on_saveButton_clicked() // Сохранения заметки - т�
     QList<QString>date_list;
     QList<bool>checked;
 
-    /*
-    QStringList note_list,name_list,time_list,date_list;
-    note_list.append(size_of_note);
-    name_list.append(size_of_note);
-    time_list.append(size_of_note);
-    date_list.append(size_of_note);
-   */
-
         for(uint Counter = 0; Counter < size_of_note; Counter++)
         {
             checked.append(notes[Counter].completeFlag);
             name = QString::fromStdString(notes[Counter].name); //имя   заметки
             note = QString::fromStdString(notes[Counter].note); //сама  заметка
             date = notes[Counter].date.toString("dd.MM.yyyy");  //дата  заметки
-            time = notes[Counter].time.toString("hh:mm");       //время заметки                     //номер заметки
-            //checked[Counter].append(notes[Counter].completeFlag);//convert bool to something
+            time = notes[Counter].time.toString("hh:mm");       //время заметки
             qDebug() << "sample text";
 
             name_list.append(name);
@@ -222,63 +195,6 @@ void Diary::on_saveButton_clicked() // Сохранения заметки - т�
             qDebug() << "TIME";
         }
         file.save_file(config,date_list,note_list,time_list,name_list,checked);
-
-
-    
-    /*if(editFlag != -1 && ui->taskText->toPlainText().toStdString() != "") { // Редактирование существующей заметки
-        notes[editFlag].setId(editFlag);
-        notes[editFlag].setName(ui->taskText->toPlainText().toStdString());
-        notes[editFlag].setNote(ui->taskText->toPlainText().toStdString());
-        notes[editFlag].setTime(ui->timeEdit->text().toStdString());
-        QDate tmp = notes[editFlag].date;
-        notes[editFlag].setDate ( ui->calendar->selectedDate());
-        //sorting
-        // в локальной QDate сохраняем предыдущую дату и проверяем на оставшиеся задачи, удаляем окрашивание
-        if (day_is_empty(tmp)) {
-            QTextCharFormat format = ui->calendar->dateTextFormat(tmp); // закрашивание ячейки календаря
-            format.clearBackground();                                   // в QColor потом подберем цвет ячейки календаря
-            ui->calendar->setDateTextFormat(tmp, format);
-        }
-        QTextCharFormat format = ui->calendar->dateTextFormat(ui->calendar->selectedDate()); // закрашивание ячейки календаря
-        format.setBackground(QBrush(QColor (200,244,99), Qt::SolidPattern));                 // в QColor потом подберем цвет ячейки календаря
-        ui->calendar->setDateTextFormat(ui->calendar->selectedDate(), format);
-
-        ui->timeEdit->setTime(QTime::fromString("00:00"));
-        ui->taskText->clear();
-        hide = true;                // Охлаждает обработчик событий на листе
-        ui->taskList->clear();      // Здесь
-        if(ui->hideCompleted->isChecked())
-            writeUnchecked();
-        else
-            Diary::write();         // Обработчик
-        editFlag = -1;              // Отдыхает
-        hide = false;               // Обработчик снова в деле
-    }
-
-    else if(ui->taskText->toPlainText().toStdString() != "") { // Создание новой заметки
-        Note note;
-        note.id = notes.size();
-        note.setName(ui->taskText->toPlainText().toStdString());
-        note.setNote(ui->taskText->toPlainText().toStdString());
-        note.setTime(ui->timeEdit->text().toStdString());
-        note.setDate(ui->calendar->selectedDate());
-        notes.push_back(note);
-        //sorting
-
-        ui->timeEdit->setTime(QTime::fromString("00:00"));
-        ui->taskText->clear();
-        hide = true;
-        ui->taskList->clear();
-        if(ui->hideCompleted->isChecked())
-            writeUnchecked();
-        else
-            Diary::write();
-        QTextCharFormat format = ui->calendar->dateTextFormat(ui->calendar->selectedDate()); // закрашивание ячейки календаря
-        format.setBackground(QBrush(QColor (200,244,99), Qt::SolidPattern)); // в QColor потом подберем цвет ячейки календаря
-        ui->calendar->setDateTextFormat(ui->calendar->selectedDate(), format);
-
-        hide = false;
-    }*/
 }
 
 void Diary::on_deleteButton_clicked()  // Удаление заметки
@@ -306,7 +222,9 @@ void Diary::on_deleteButton_clicked()  // Удаление заметки
                 ui->calendar->setDateTextFormat(tmp, format);
             }
             ui->taskList->clear();
+            hide = true;
             write();
+            hide = false;
         }
     }
 }
@@ -333,7 +251,6 @@ void Diary::on_taskList_itemDoubleClicked()  // Редактирование з�
 void Diary::on_hideCompleted_stateChanged(int arg1) // Скрыть выполненные задачи
 {
     if(arg1 && todayTasksFlag == true) {
-        //Write today's unchecked
         hideCompletedFlag = true;
 
         hide = true;
@@ -343,7 +260,6 @@ void Diary::on_hideCompleted_stateChanged(int arg1) // Скрыть выполн
         ui->taskText->clear();
     }
     else if(arg1) {
-        // Write unchecked
         hideCompletedFlag = true;
 
         hide = true;
@@ -387,12 +303,6 @@ void Diary::on_taskList_itemChanged(QListWidgetItem *item) // Обработчи
     }
 
 }
-
-/*void Diary::on_calendar_clicked(const QDate &date) //Запрет на создание новых дел для прошедших дней
-{
-    if (date < QDate::currentDate()) ui->saveButton->setDisabled(true);
-    else ui->saveButton->setDisabled(false);
-}*/
 
 void Diary::on_todayTasks_stateChanged(int arg1) // Список событий на конкретную дату
 {
@@ -457,20 +367,10 @@ void Diary::on_exit_triggered()         // Выход
     }
 }
 
-/*void Diary::on_timeEdit_timeChanged(const QTime &time) //это теперь тоже должно быть не здесь
-{
-    if (ui->calendar->selectedDate() == QDate :: currentDate()) {
-    if (time < QTime::currentTime()) ui->saveButton->setDisabled(true);
-    else ui->saveButton->setDisabled(false);
-    }
-    else ui->saveButton->setDisabled(false);
-}*/
-
 void Diary::on_menuButton_clicked()     // Переход в главное меню
 {
-    Menu *m = new Menu(this);
-    m->show();
-    m->setFixedSize(m->size());
+    menu->show();
+    menu->setFixedSize(menu->size());
 
     ui->taskText->clear();
     this->close();

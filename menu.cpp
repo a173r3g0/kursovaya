@@ -2,10 +2,10 @@
 #include "ui_menu.h"
 #include <QDir>
 #include <qstandardpaths.h>
-#include <standart_path.h>
 #include <QFileDialog>
 #include <QDesktopServices>
 #include <QUrl>
+#include <alternative_save_load.h>
 
 Menu::Menu(Diary *d, QWidget *parent) :
     QMainWindow(parent),
@@ -24,8 +24,9 @@ Menu::Menu(QWidget *parent) :
 
         QStringList Diaries;
         int size;
+        Save_load File;
 
-        check_Diaries(&Diaries);
+        File.checkDiaries(&Diaries);
 
         size = Diaries.size();
 
@@ -46,17 +47,9 @@ Menu::~Menu()
 
 void Menu::on_lastButton_clicked()
 {   
-    if(!d) {
-        Diary *di = new Diary;
+        Diary *di = new Diary(this);
         di->show();
-
         this->close();
-    }
-    else {
-        d->show();
-
-        this->close();
-    }
 }
 
 void Menu::on_exitButton_clicked() {
@@ -75,25 +68,27 @@ void Menu::on_exitButton_clicked() {
 
 void Menu::on_opencurrent_button_clicked()
 {
-    QString NameDiary = ui->comboBox->currentText();
-    make_cfg(NameDiary);
-    if(!d) {
-        Diary *di = new Diary;
+    int id = ui->comboBox->currentIndex();
+    QStringList Diaries;
+    Save_load File;
+    File.checkDiaries(&Diaries);
+    //QString NameDiary = ui->comboBox->currentIndex();
+    File.make_config(Diaries[id]);
+    qDebug() << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << Diaries[id];
+
+        Diary *di = new Diary(this);
         di->show();
 
         this->close();
-    }
-    else {
-        d->show();
 
-        this->close();
-    }
 }
 
 void Menu::on_importButton_clicked()
 {
     QString Standart_path,path;
-    standart_paths(&Standart_path);
+    Save_load File;
+
+    File.standart_path(&Standart_path);
     Standart_path.replace("//","/");
     path = "file://" + Standart_path;
     QDesktopServices::openUrl(QUrl(path));
@@ -101,7 +96,7 @@ void Menu::on_importButton_clicked()
 
 void Menu::on_createButton_clicked()
 {
-    make_new *make = new make_new;
+    make_new *make = new make_new(this);
     make->show();
     close();
 }

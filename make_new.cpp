@@ -4,11 +4,12 @@
 #include "diary.h"
 #include "alternative_save_load.h"
 
-make_new::make_new(QWidget *parent) :
+make_new::make_new(Menu* m, QWidget *parent) :
     QWidget(parent),
     ui(new Ui::make_new)
 {
     ui->setupUi(this);
+    this->m = m;
     setWindowTitle("Create new");
 }
 
@@ -24,7 +25,7 @@ void make_new::on_pushButton_clicked()
     file.make_config(NameDiary);
     file.make_dir(NameDiary);
 
-    Diary *diary = new Diary();
+    Diary *diary = new Diary(m);
     diary->show();
     close();
 }

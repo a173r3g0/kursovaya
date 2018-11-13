@@ -12,9 +12,11 @@
 #include <QDebug>
 #include "createnote.h"
 #include <algorithm>
-
+//#include <menu.h>
+class Menu;
 namespace Ui {
 class Diary;
+//class Menu;
 }
 
 class Diary : public QMainWindow
@@ -22,7 +24,7 @@ class Diary : public QMainWindow
     Q_OBJECT
 
 public:
-    explicit Diary(QWidget *parent = 0);
+    explicit Diary(Menu* menu, QWidget *parent = 0 );
     static bool sorting (Note one, Note two);
     bool (*ptr) (Note one, Note two) = &sorting;
     ~Diary();
@@ -82,6 +84,8 @@ private slots:
 
 private:
     Ui::Diary *ui;
+    //Ui::Menu *menu;
+    Menu* menu;
     std::vector <Note> notes;           // Все заметки
     int editFlag = -1;                  // Флаг редактирования, содержит номер редактируемой заметки или значение = -1
     bool hide = false;                  // Успокаивает обработчик событий на листе

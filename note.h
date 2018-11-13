@@ -19,7 +19,6 @@ public:
     void setNote(std::string text);
     void setTime(QTime time);
     void setDate(QDate date);
-    //void setId(int num);            // Стереть предыдущий индекс из печатаемого имени и записать новый
 
 };
 

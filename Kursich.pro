@@ -37,7 +37,6 @@ HEADERS += \
     note.h \
     menu.h \
     createnote.h \
-    standart_path.h \
     alternative_save_load.h \
     make_new.h
 
